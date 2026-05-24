@@ -3,29 +3,30 @@
   --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
 
-  /* Color Palette (Deep dark charcoal and matching yellow-gold/amber logo colors) */
-  --bg-primary: #070a13;
-  --bg-secondary: #0f172a;
-  --bg-tertiary: #1e293b;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  /* Color Palette - Flipkart Light Inspired */
+  --bg-primary: #f1f3f6; /* Light gray page background */
+  --bg-secondary: #ffffff; /* White card material backgrounds */
+  --bg-tertiary: #f9f9f9;
+  --text-primary: #212121; /* Flipkart primary dark text */
+  --text-secondary: #878787; /* Flipkart muted gray text */
+  --text-muted: #9e9e9e;
   
-  --brand-primary: #f59e0b; /* Yellow/Orange */
-  --brand-secondary: #d97706;
-  --brand-accent: #fcd34d;
-  --brand-glow: rgba(245, 158, 11, 0.25);
-  --brand-glow-strong: rgba(245, 158, 11, 0.5);
+  --brand-primary: #2874f0; /* Flipkart Blue */
+  --brand-secondary: #1254c4;
+  --brand-accent: #fb641b; /* Flipkart Orange (Buy Now / Offers) */
+  --brand-yellow: #ffe500; /* Flipkart Yellow accent */
+  --brand-glow: rgba(40, 116, 240, 0.08);
+  --brand-glow-strong: rgba(40, 116, 240, 0.15);
 
-  --success: #10b981;
-  --danger: #ef4444;
+  --success: #388e3c; /* Flipkart green star/success badge */
+  --danger: #d32f2f;
 
-  --glass-bg: rgba(15, 23, 42, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: rgba(0, 0, 0, 0.05);
 
-  --transition-smooth: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);
 }
 
 body {
@@ -41,15 +42,15 @@ body {
   min-height: 100vh;
 }
 
-/* Premium Header styling */
+/* Flipkart Blue Header styling */
 .header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(7, 10, 19, 0.85);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--glass-border);
-  padding: 1.25rem 2rem;
+  background: #2874f0; /* Flipkart Blue */
+  border-bottom: none;
+  padding: 0.75rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
   transition: var(--transition-smooth);
 }
 

@@ -45,7 +45,7 @@ const MOCK_REVIEWS = [
   { user: 'Amina P.', rating: 4, comment: 'Gorgeous aesthetics. Battery life matches specifications perfectly.', date: 'May 18, 2026' }
 ];
 
-export default function ProductDetailModal({ product, onClose, onAddToCart }) {
+export default function ProductDetailModal({ product, onClose, onAddToCart, onBuyNow }) {
   const { name, price, rating, category, discount, icon: ProductIcon } = product;
   const [activeGlow, setActiveGlow] = useState('gold');
   const [activeImgIndex, setActiveImgIndex] = useState(0);
@@ -199,27 +199,93 @@ export default function ProductDetailModal({ product, onClose, onAddToCart }) {
               Discover elite lighting and design craftsmanship. Engineered using custom-grade premium materials, this high-end item is specifically built to complement modern home interiors while delivering exceptional efficiency and visual luxury.
             </p>
 
-            {/* Pricing Section */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.02)', padding: '1rem 1.25rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
-              <div>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', fontWeight: 600 }}>Elite Value</span>
-                <span className="product-price" style={{ fontSize: '1.8rem', fontWeight: 800 }}>${price.toFixed(2)}</span>
+            {/* Pricing Section - Flipkart Double Action Buttons */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: '#f9f9f9', padding: '1.25rem', borderRadius: '8px', border: '1px solid #e0e0e0', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <span style={{ fontSize: '0.75rem', color: '#878787', display: 'block', textTransform: 'uppercase', fontWeight: 700 }}>Special Price Value</span>
+                  <span className="product-price" style={{ fontSize: '2rem', fontWeight: 800, color: '#212121' }}>${price.toFixed(2)}</span>
+                </div>
+                {discount > 0 && (
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#878787', textDecoration: 'line-through', marginRight: '0.5rem' }}>
+                      ${(price / (1 - discount/100)).toFixed(2)}
+                    </span>
+                    <span style={{ fontSize: '0.85rem', color: '#388e3c', fontWeight: 700 }}>
+                      {discount}% Off
+                    </span>
+                  </div>
+                )}
               </div>
-              <button 
-                className="btn-primary" 
-                onClick={() => {
-                  onAddToCart(product);
-                  onClose();
-                }}
-                style={{
-                  background: `linear-gradient(135deg, ${currentGlow.hex}, #fff)`,
-                  boxShadow: `0 4px 15px rgba(${currentGlow.rgb}, 0.3)`,
-                  color: '#000',
-                  padding: '0.75rem 1.5rem'
-                }}
-              >
-                Add To Cart
-              </button>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.5rem' }}>
+                {/* ADD TO CART - Orange */}
+                <button 
+                  className="btn-primary" 
+                  onClick={() => {
+                    onAddToCart(product);
+                    onClose();
+                  }}
+                  style={{
+                    background: '#ff9f00', /* Flipkart Orange */
+                    boxShadow: '0 2px 4px rgba(255,159,0,0.2)',
+                    color: '#ffffff',
+                    padding: '0.85rem 1rem',
+                    borderRadius: '4px',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.92rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#f29100'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#ff9f00'}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Add To Cart
+                </button>
+
+                {/* BUY NOW - Reddish Orange */}
+                <button 
+                  className="btn-primary" 
+                  onClick={() => {
+                    if (onBuyNow) onBuyNow(product);
+                  }}
+                  style={{
+                    background: '#fb641b', /* Flipkart Reddish-Orange */
+                    boxShadow: '0 2px 4px rgba(251,100,27,0.2)',
+                    color: '#ffffff',
+                    padding: '0.85rem 1rem',
+                    borderRadius: '4px',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.92rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#e65313'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#fb641b'}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Buy Now
+                </button>
+              </div>
             </div>
 
             {/* Spec Sheet Table */}

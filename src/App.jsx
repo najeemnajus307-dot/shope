@@ -7,6 +7,8 @@ import Checkout from './components/Checkout';
 import Footer from './components/Footer';
 import ProductDetailModal from './components/ProductDetailModal';
 import AdminDashboard from './components/AdminDashboard';
+import CategoryRibbon from './components/CategoryRibbon';
+import OffersBanner from './components/OffersBanner';
 import './App.css';
 
 // ==========================================
@@ -435,8 +437,15 @@ export default function App() {
       {/* Conditionally Render Shop or Admin Dashboard */}
       {!isAdminView ? (
         <>
-          {/* Sleek Hero landing */}
-          <Hero onShopNowClick={handleExploreCatalog} />
+          {/* Flipkart Visual Category Ribbon */}
+          <CategoryRibbon
+            categories={CATEGORIES}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+
+          {/* Flipkart Deal Promos Auto-scrolling Carousel */}
+          <OffersBanner onExploreClick={handleExploreCatalog} />
 
           {/* Catalog lists and filters */}
           <ProductList
@@ -491,6 +500,11 @@ export default function App() {
           product={detailProduct}
           onClose={() => setDetailProduct(null)}
           onAddToCart={handleAddToCart}
+          onBuyNow={(prod) => {
+            handleAddToCart(prod);
+            setDetailProduct(null);
+            setIsCheckoutOpen(true);
+          }}
         />
       )}
 

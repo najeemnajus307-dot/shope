@@ -15,22 +15,14 @@ export default function ProductList({
 }) {
   return (
     <section className="products-section" id="products">
-      {/* Category Selection Filter Bar */}
-      <div className="store-controls" id="categories" style={{ marginBottom: '1.5rem' }}>
-        <div className="category-list">
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={`category-capsule ${selectedCategory === category ? 'active' : ''}`}
-              onClick={() => onCategoryChange(category)}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-        <div className="store-results-meta">
-          Showing {products.length} {products.length === 1 ? 'product' : 'products'}
-        </div>
+      {/* Category Results Meta Bar */}
+      <div className="store-controls" id="categories" style={{ marginBottom: '1rem', justifyContent: 'flex-start', borderBottom: '1px solid #e0e0e0', paddingBottom: '0.75rem', marginTop: '1rem' }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, color: '#212121', fontFamily: "'Outfit', sans-serif" }}>
+          Deals on {selectedCategory === 'All' ? 'All Lights & LED Products' : selectedCategory}
+        </h2>
+        <span style={{ fontSize: '0.85rem', color: '#878787', marginLeft: '0.75rem', fontWeight: 500 }}>
+          ({products.length} items found)
+        </span>
       </div>
 
       {/* Premium Glassmorphic Sorting & Price Range Filter Row */}

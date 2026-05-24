@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo.png.jpeg';
 
 export default function Header({ 
   cartCount, 

@@ -7,8 +7,28 @@ export default function Header({
   searchQuery, 
   onSearchChange,
   isAdminView,
-  onToggleAdminView
+  onToggleAdminView,
+  products = [],
+  onProductClick
 }) {
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const suggestionsRef = React.useRef(null);
+
+  // Close suggestions when clicking outside
+  React.useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  const matchingProducts = searchQuery.trim() 
+    ? products.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5)
+    : [];
+
   return (
     <header className="header" style={{
       background: '#2874f0', /* Flipkart Blue */
@@ -54,7 +74,7 @@ export default function Header({
 
         {/* Flipkart-Style Central Search Bar */}
         {!isAdminView ? (
-          <div className="search-container" style={{
+          <div className="search-container" ref={suggestionsRef} style={{
             flex: 1,
             maxWidth: '560px',
             position: 'relative',
@@ -66,7 +86,11 @@ export default function Header({
               className="search-input"
               placeholder="Search for premium lights, LEDs, bulbs and more..."
               value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
+              onChange={(e) => {
+                onSearchChange(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
               style={{
                 width: '100%',
                 padding: '0.65rem 1rem 0.65rem 2.5rem',
@@ -90,6 +114,68 @@ export default function Header({
             }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
+
+            {/* Flipkart Autocomplete Dropdown List */}
+            {showSuggestions && matchingProducts.length > 0 && (
+              <div className="search-suggestions-dropdown" style={{
+                position: 'absolute',
+                top: '105%',
+                left: 0,
+                right: 0,
+                background: '#ffffff',
+                borderRadius: '4px',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                border: '1px solid #e0e0e0',
+                maxHeight: '300px',
+                overflowY: 'auto',
+                zIndex: 150,
+                animation: 'fadeIn 0.2s ease-out'
+              }}>
+                {matchingProducts.map((p) => (
+                  <div
+                    key={p.id}
+                    onClick={() => {
+                      if (onProductClick) onProductClick(p);
+                      setShowSuggestions(false);
+                      onSearchChange(''); // Reset search input on selection
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.65rem 1rem',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid #f5f5f5',
+                      transition: 'background 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f2f7ff'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
+                  >
+                    {/* Thumbnail */}
+                    <div style={{ width: '32px', height: '32px', borderRadius: '4px', overflow: 'hidden', background: '#f9f9f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid #e0e0e0' }}>
+                      {p.image ? (
+                        <img src={p.image} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      ) : p.icon ? (
+                        <div style={{ width: '20px', height: '20px' }}>
+                          <p.icon />
+                        </div>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="#878787">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      )}
+                    </div>
+                    {/* Meta */}
+                    <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#212121' }}>{p.name}</span>
+                      <span style={{ fontSize: '0.72rem', color: '#878787' }}>{p.category}</span>
+                    </div>
+                    {/* Price */}
+                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#2874f0' }}>${p.price.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div style={{

@@ -387,6 +387,29 @@ export default function App() {
     );
   };
 
+  // Customer Add Review to Product
+  const handleAddProductReview = (productId, reviewObj) => {
+    setProducts(prevProducts => 
+      prevProducts.map(p => {
+        if (p.id === productId) {
+          const currentReviews = p.reviews || [];
+          const updatedReviews = [reviewObj, ...currentReviews];
+          
+          // Mathematically calculate the new rating average
+          const totalRating = updatedReviews.reduce((sum, r) => sum + r.rating, 0);
+          const newAvgRating = parseFloat((totalRating / updatedReviews.length).toFixed(1));
+          
+          return {
+            ...p,
+            reviews: updatedReviews,
+            rating: newAvgRating
+          };
+        }
+        return p;
+      })
+    );
+  };
+
   // Admin Update Order Status
   const handleUpdateOrderStatus = (orderId, newStatus) => {
     setOrders(prevOrders => 
@@ -432,6 +455,8 @@ export default function App() {
         onSearchChange={setSearchQuery}
         isAdminView={isAdminView}
         onToggleAdminView={() => setIsAdminView(!isAdminView)}
+        products={products}
+        onProductClick={setDetailProduct}
       />
 
       {/* Conditionally Render Shop or Admin Dashboard */}
@@ -497,7 +522,7 @@ export default function App() {
       {/* Premium Product Detail Modal Overlay */}
       {detailProduct && (
         <ProductDetailModal
-          product={detailProduct}
+          product={products.find(p => p.id === detailProduct.id) || detailProduct}
           onClose={() => setDetailProduct(null)}
           onAddToCart={handleAddToCart}
           onBuyNow={(prod) => {
@@ -505,6 +530,7 @@ export default function App() {
             setDetailProduct(null);
             setIsCheckoutOpen(true);
           }}
+          onAddReview={handleAddProductReview}
         />
       )}
 

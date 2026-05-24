@@ -358,6 +358,33 @@ export default function App() {
     setProducts(prevProducts => prevProducts.filter(p => p.id !== productId));
   };
 
+  // Admin Update Product
+  const handleUpdateProduct = (updatedProd) => {
+    // Helper to assign icons based on category
+    let assignedIcon = LampIcon; // Default
+    if (updatedProd.category === 'Wearables') assignedIcon = WatchIcon;
+    else if (updatedProd.category === 'Audio') assignedIcon = AudioIcon;
+    else if (updatedProd.category === 'Electronics') assignedIcon = KeyboardIcon;
+    else if (updatedProd.category === 'Home & Living') assignedIcon = LampIcon;
+
+    setProducts(prevProducts => 
+      prevProducts.map(p => 
+        p.id === updatedProd.id 
+          ? { 
+              ...p, 
+              name: updatedProd.name,
+              category: updatedProd.category,
+              price: updatedProd.price,
+              discount: updatedProd.discount,
+              image: updatedProd.image,
+              images: updatedProd.images,
+              icon: assignedIcon
+            } 
+          : p
+      )
+    );
+  };
+
   // Admin Update Order Status
   const handleUpdateOrderStatus = (orderId, newStatus) => {
     setOrders(prevOrders => 
@@ -432,6 +459,7 @@ export default function App() {
           onAddProduct={handleAddProduct}
           onDeleteProduct={handleDeleteProduct}
           onUpdateOrderStatus={handleUpdateOrderStatus}
+          onUpdateProduct={handleUpdateProduct}
         />
       )}
 

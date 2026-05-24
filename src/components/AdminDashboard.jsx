@@ -5,7 +5,8 @@ export default function AdminDashboard({
   products, 
   onAddProduct, 
   onDeleteProduct, 
-  onUpdateOrderStatus 
+  onUpdateOrderStatus,
+  onUpdateProduct
 }) {
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -16,6 +17,7 @@ export default function AdminDashboard({
     images: [] // Support multiple images
   });
 
+  const [editingProductId, setEditingProductId] = useState(null);
   const [orderSearch, setOrderSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
 
@@ -56,6 +58,33 @@ export default function AdminDashboard({
     }
   };
 
+  const handleEditClick = (product) => {
+    setEditingProductId(product.id);
+    setNewProduct({
+      name: product.name,
+      category: product.category,
+      price: product.price.toString(),
+      discount: product.discount.toString(),
+      image: product.image || '',
+      images: product.images || []
+    });
+    // Scroll smoothly to form
+    const formSec = document.querySelector('.add-product-card');
+    if (formSec) formSec.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProductId(null);
+    setNewProduct({
+      name: '',
+      category: 'Electronics',
+      price: '',
+      discount: '0',
+      image: '',
+      images: []
+    });
+  };
+
   const handleAddSubmit = (e) => {
     e.preventDefault();
     if (!newProduct.name || !newProduct.price) {
@@ -76,14 +105,27 @@ export default function AdminDashboard({
       finalImages.unshift(newProduct.image);
     }
 
-    onAddProduct({
-      name: newProduct.name,
-      category: newProduct.category,
-      price: priceNum,
-      discount: discountNum,
-      image: newProduct.image.trim(),
-      images: finalImages
-    });
+    if (editingProductId) {
+      onUpdateProduct({
+        id: editingProductId,
+        name: newProduct.name,
+        category: newProduct.category,
+        price: priceNum,
+        discount: discountNum,
+        image: newProduct.image.trim(),
+        images: finalImages
+      });
+      setEditingProductId(null);
+    } else {
+      onAddProduct({
+        name: newProduct.name,
+        category: newProduct.category,
+        price: priceNum,
+        discount: discountNum,
+        image: newProduct.image.trim(),
+        images: finalImages
+      });
+    }
 
     // Reset Form
     setNewProduct({
@@ -226,7 +268,7 @@ export default function AdminDashboard({
           
           {/* Add Product Form */}
           <div className="admin-card add-product-card">
-            <h3>Add New Product</h3>
+            <h3>{editingProductId ? `Edit Product (${newProduct.name})` : 'Add New Product'}</h3>
             <form onSubmit={handleAddSubmit} className="admin-form">
               <div className="form-group">
                 <label className="form-label">Product Name *</label>
@@ -352,9 +394,22 @@ export default function AdminDashboard({
                 )}
               </div>
 
-              <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem', display: 'block', textAlign: 'center' }}>
-                Add to Live Catalog
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '0.5rem', display: 'block', textAlign: 'center' }}>
+                  {editingProductId ? 'Save Product Changes' : 'Add to Live Catalog'}
+                </button>
+                
+                {editingProductId && (
+                  <button 
+                    type="button" 
+                    className="btn-secondary" 
+                    onClick={handleCancelEdit}
+                    style={{ width: '100%', display: 'block', textAlign: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)', color: 'var(--text-secondary)', padding: '0.75rem', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', transition: 'var(--transition-smooth)' }}
+                  >
+                    Cancel Edit Mode
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -383,20 +438,79 @@ export default function AdminDashboard({
               filteredProducts.length > 0 ? (
                 <div className="catalog-list-wrapper">
                   {filteredProducts.map((product) => (
-                    <div key={product.id} className="catalog-item-row">
-                      <div className="catalog-item-meta">
+                    <div key={product.id} className="catalog-item-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      
+                      {/* Product Thumbnail Image / Fallback Icon */}
+                      <div className="catalog-item-thumb" style={{ width: '44px', height: '44px', borderRadius: '8px', overflow: 'hidden', background: '#070a13', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {product.image ? (
+                          <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        ) : product.icon ? (
+                          <div style={{ width: '28px', height: '28px' }}>
+                            <product.icon />
+                          </div>
+                        ) : (
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style={{ color: 'var(--text-muted)' }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                      </div>
+
+                      <div className="catalog-item-meta" style={{ flex: 1 }}>
                         <span className="catalog-item-name">{product.name}</span>
                         <span className="catalog-item-sub">{product.category} • ${product.price.toFixed(2)}</span>
                       </div>
-                      <button 
-                        className="btn-remove" 
-                        onClick={() => onDeleteProduct(product.id)}
-                        aria-label={`Delete ${product.name}`}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        {/* Edit Button */}
+                        <button 
+                          className="btn-edit" 
+                          onClick={() => handleEditClick(product)}
+                          style={{
+                            background: 'rgba(245, 158, 11, 0.1)',
+                            border: '1px solid rgba(245, 158, 11, 0.2)',
+                            color: 'var(--brand-primary)',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '6px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'var(--transition-bounce)'
+                          }}
+                          title="Edit Product Details"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                        </button>
+
+                        {/* Remove Button */}
+                        <button 
+                          className="btn-remove" 
+                          onClick={() => onDeleteProduct(product.id)}
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            color: '#ef4444',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '6px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'var(--transition-bounce)'
+                          }}
+                          aria-label={`Delete ${product.name}`}
+                          title="Delete Product"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+
                     </div>
                   ))}
                 </div>

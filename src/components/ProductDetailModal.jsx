@@ -48,9 +48,14 @@ const MOCK_REVIEWS = [
 export default function ProductDetailModal({ product, onClose, onAddToCart }) {
   const { name, price, rating, category, discount, icon: ProductIcon } = product;
   const [activeGlow, setActiveGlow] = useState('gold');
+  const [activeImgIndex, setActiveImgIndex] = useState(0);
 
   const currentGlow = GLOW_MODES[activeGlow];
   const specs = CATEGORY_SPECS[category] || CATEGORY_SPECS['Home & Living'];
+
+  const imagesList = product.images && product.images.length > 0 
+    ? product.images 
+    : (product.image ? [product.image] : []);
 
   return (
     <div className="checkout-overlay active" onClick={onClose} style={{ zIndex: 150 }}>
@@ -79,7 +84,7 @@ export default function ProductDetailModal({ product, onClose, onAddToCart }) {
         <div className="product-detail-columns" style={{ display: 'grid', gridTemplateColumns: '1.1fr 1.2fr', gap: '2.5rem', marginTop: '0.5rem' }}>
           
           {/* Left Column: Visualizer Box */}
-          <div className="detail-visualizer-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="detail-visualizer-panel" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div 
               className="product-image-container visualizer-box" 
               style={{ 
@@ -110,17 +115,43 @@ export default function ProductDetailModal({ product, onClose, onAddToCart }) {
                   transform: 'scale(1.05)'
                 }}
               >
-                {product.image ? (
-                  <img src={product.image} alt={name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '12px' }} />
+                {imagesList.length > 0 ? (
+                  <img src={imagesList[activeImgIndex]} alt={name} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '12px' }} />
                 ) : (
                   <ProductIcon />
                 )}
               </div>
             </div>
 
+            {/* Image Carousel Selectors */}
+            {imagesList.length > 1 && (
+              <div className="carousel-thumbnails" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', margin: '0.25rem 0' }}>
+                {imagesList.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImgIndex(idx)}
+                    style={{
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      border: activeImgIndex === idx ? `2px solid ${currentGlow.hex}` : '1px solid var(--glass-border)',
+                      padding: 0,
+                      background: '#070a13',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: activeImgIndex === idx ? `0 0 8px rgba(${currentGlow.rgb}, 0.4)` : 'none'
+                    }}
+                  >
+                    <img src={img} alt="thumbnail" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Glowing Color Controls */}
             <div className="glow-control-panel">
-              <span className="form-label" style={{ display: 'block', marginBottom: '0.75rem', letterSpacing: '0.5px' }}>
+              <span className="form-label" style={{ display: 'block', marginBottom: '0.5rem', letterSpacing: '0.5px' }}>
                 LIVE PREVIEW: <strong style={{ color: currentGlow.hex }}>{currentGlow.label}</strong>
               </span>
               <div className="glow-selectors" style={{ display: 'flex', gap: '0.75rem' }}>

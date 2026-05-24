@@ -264,7 +264,7 @@ export default function App() {
 
   // Sorting & Filter states
   const [sortBy, setSortBy] = useState('recommended');
-  const [priceRange, setPriceRange] = useState([0, 500]);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
   // Product Details Modal state
   const [detailProduct, setDetailProduct] = useState(null);
@@ -346,7 +346,8 @@ export default function App() {
       discount: newProd.discount,
       rating: 5.0, // Brand new items start with top rating!
       icon: assignedIcon,
-      image: newProd.image
+      image: newProd.image,
+      images: newProd.images
     };
 
     setProducts(prevProducts => [...prevProducts, addedItem]);

@@ -12,7 +12,8 @@ export default function AdminDashboard({
     category: 'Electronics',
     price: '',
     discount: '0',
-    image: ''
+    image: '',
+    images: [] // Support multiple images
   });
 
   const [orderSearch, setOrderSearch] = useState('');
@@ -29,13 +30,29 @@ export default function AdminDashboard({
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewProduct(prev => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const loadedImages = [];
+      let count = 0;
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          loadedImages.push(reader.result);
+          count++;
+          if (count === files.length) {
+            setNewProduct(prev => {
+              const updatedImages = [...prev.images, ...loadedImages];
+              return { 
+                ...prev, 
+                images: updatedImages,
+                // Automatically set the main image to the first uploaded one if none is selected
+                image: prev.image || updatedImages[0]
+              };
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
@@ -54,12 +71,18 @@ export default function AdminDashboard({
       return;
     }
 
+    let finalImages = [...newProduct.images];
+    if (newProduct.image && !finalImages.includes(newProduct.image)) {
+      finalImages.unshift(newProduct.image);
+    }
+
     onAddProduct({
       name: newProduct.name,
       category: newProduct.category,
       price: priceNum,
       discount: discountNum,
-      image: newProduct.image.trim()
+      image: newProduct.image.trim(),
+      images: finalImages
     });
 
     // Reset Form
@@ -68,7 +91,8 @@ export default function AdminDashboard({
       category: 'Electronics',
       price: '',
       discount: '0',
-      image: ''
+      image: '',
+      images: []
     });
   };
 
@@ -261,12 +285,13 @@ export default function AdminDashboard({
               </div>
 
               <div className="form-group">
-                <label className="form-label">Product Image</label>
+                <label className="form-label">Product Image(s)</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {/* File Upload Selector */}
+                  {/* File Upload Selector supporting multiple files */}
                   <input 
                     type="file" 
                     accept="image/*"
+                    multiple
                     onChange={handleFileChange}
                     className="form-input"
                     style={{ padding: '0.45rem', fontSize: '0.8rem', cursor: 'pointer' }}
@@ -289,25 +314,40 @@ export default function AdminDashboard({
                   />
                 </div>
                 
-                {/* Upload Preview Thumbnail */}
-                {newProduct.image && (
-                  <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', animation: 'fadeIn 0.3s ease-out', background: 'rgba(255,255,255,0.02)', padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Preview:</span>
-                    <img 
-                      src={newProduct.image} 
-                      alt="Product preview" 
-                      style={{ width: '40px', height: '40px', objectFit: 'contain', borderRadius: '6px', background: '#070a13', border: '1px solid var(--glass-border)' }} 
-                    />
-                    <button 
-                      type="button" 
-                      onClick={() => setNewProduct(prev => ({ ...prev, image: '' }))}
-                      style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--danger)', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Clear
-                    </button>
+                {/* Upload Previews list */}
+                {newProduct.images.length > 0 && (
+                  <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', animation: 'fadeIn 0.3s ease-out', background: 'rgba(255,255,255,0.02)', padding: '0.75rem', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Uploaded Images ({newProduct.images.length}):</span>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      {newProduct.images.map((img, idx) => (
+                        <div key={idx} style={{ position: 'relative', width: '50px', height: '50px', borderRadius: '6px', overflow: 'hidden', border: newProduct.image === img ? '2px solid var(--brand-primary)' : '1px solid var(--glass-border)', cursor: 'pointer' }} onClick={() => setNewProduct(prev => ({ ...prev, image: img }))} title="Set as primary cover image">
+                          <img 
+                            src={img} 
+                            alt={`Preview ${idx}`} 
+                            style={{ width: '100%', height: '100%', objectFit: 'contain', background: '#070a13' }} 
+                          />
+                          <button 
+                            type="button" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setNewProduct(prev => {
+                                const filtered = prev.images.filter((_, i) => i !== idx);
+                                return {
+                                  ...prev,
+                                  images: filtered,
+                                  image: prev.image === img ? filtered[0] || '' : prev.image
+                                };
+                              });
+                            }}
+                            style={{ position: 'absolute', top: '2px', right: '2px', width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', cursor: 'pointer', fontWeight: 900 }}
+                            title="Remove image"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>* Click on any thumbnail above to set it as the primary cover image!</span>
                   </div>
                 )}
               </div>

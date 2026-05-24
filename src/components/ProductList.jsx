@@ -57,7 +57,7 @@ export default function ProductList({
           <input
             type="range"
             min="0"
-            max="500"
+            max="1000"
             step="10"
             value={priceRange[1]}
             onChange={(e) => onPriceRangeChange([priceRange[0], parseInt(e.target.value)])}
